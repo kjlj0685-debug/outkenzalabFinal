@@ -1,0 +1,120 @@
+
+from flask import Flask, request, jsonify
+from pymongo import MongoClient
+import psycopg2
+
+app = Flask(__name__)
+
+# ========================
+# MongoDB
+# ========================
+MONGO_URI = "mongodb+srv://DO:QWERTYUIOP1233@cluster0.0tgf5dm.mongodb.net/mydatabase?retryWrites=true&w=majority"
+
+client = MongoClient(MONGO_URI)
+mongo_db = client["mydatabase"]
+mongo_collection = mongo_db["users"]
+
+print("✅ MongoDB Connected")
+
+# ========================
+# PostgreSQL (Supabase FIXED)
+# ========================
+
+def get_connection():
+    return psycopg2.connect(
+        host="aws-0-eu-west-1.pooler.supabase.com",
+        port=5432,
+        database="postgres",
+        user="postgres.vvamqziitalpowyamyra",
+        password="QWERTYUIOPASDFGHJKLZXCVBN12345",
+        sslmode="require"
+    )
+
+try:
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS users_sql (
+        id SERIAL PRIMARY KEY,
+        name TEXT,
+        age INT
+    );
+    """)
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    print("✅ PostgreSQL Connected (Supabase Pooler)")
+
+except Exception as e:
+    print("❌ SQL Error:", e)
+
+# ========================
+# Routes
+# ========================
+@app.route("/")
+def home():
+    return "🚀 Cloud TP is working!"
+
+# ---------- MongoDB ----------
+@app.route("/mongo/add", methods=["POST"])
+def add_mongo():
+    data = request.json
+    mongo_collection.insert_one(data)
+    return jsonify({"message": "Added to MongoDB"})
+
+@app.route("/mongo/users", methods=["GET"])
+def get_mongo():
+    users = []
+    for user in mongo_collection.find():
+        user["_id"] = str(user["_id"])
+        users.append(user)
+    return jsonify(users)
+
+# ---------- PostgreSQL ----------
+@app.route("/sql/add", methods=["POST"])
+def add_sql():
+    data = request.json
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO users_sql (name, age) VALUES (%s, %s);",
+        (data.get("name"), data.get("age"))
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"message": "Added to SQL"})
+
+
+@app.route("/sql/users", methods=["GET"])
+def get_sql():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM users_sql;")
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    result = []
+    for r in rows:
+        result.append({
+            "id": r[0],
+            "name": r[1],
+            "age": r[2]
+        })
+
+    return jsonify(result)
+
+
+# ========================
+if __name__ == "__main__":
+    app.run(debug=True)

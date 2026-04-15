@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+        }
+
+        .navbar {
+            background: #020617;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .logout {
+            color: white;
+            text-decoration: none;
+        }
+
+        .container {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 12px;
+            width: 220px;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">🚀 MyApp</div>
+    <a class="logout" href="/logout">Logout</a>
+</div>
+
+<div class="container">
+    <h1>Welcome {{ user }} 👋</h1>
+    <p>Your dashboard is ready</p>
+
+    <div class="cards">
+        <div class="card">
+            <h3>📊 Stats</h3>
+            <p>View analytics</p>
+        </div>
+        <div class="card">
+            <h3>⚙️ Settings</h3>
+            <p>Manage account</p>
+        </div>
+        <div class="card">
+            <h3>💬 Messages</h3>
+            <p>Check inbox</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
